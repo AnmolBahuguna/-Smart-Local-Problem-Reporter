@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — CivicReport</title>
+  <meta name="description" content="Your CivicReport citizen dashboard. Track complaints and report new issues.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="app-sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🏛️</div>
+      <div>
+        <div class="sidebar-logo-text">CivicReport</div>
+        <div class="sidebar-logo-sub">Citizen Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item active" id="nav-overview">
+        <span class="nav-icon">🏠</span> Overview
+      </a>
+      <a href="report.html" class="nav-item" id="nav-report">
+        <span class="nav-icon">📝</span> Report Issue
+      </a>
+      <a href="complaints.html" class="nav-item" id="nav-complaints">
+        <span class="nav-icon">📄</span> My Complaints
+      </a>
+      <div class="sidebar-section-label" style="margin-top:var(--sp-4);">Account</div>
+      <a href="#" class="nav-item" id="nav-notifications">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge">2</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <div class="user-avatar js-user-avatar" title="Profile">?</div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:0.83rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="js-user-name">Loading…</div>
+          <div style="font-size:0.7rem;color:var(--c-sidebar-text);" class="js-user-email">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm js-logout" style="color:hsla(0,0%,100%,.5);padding:4px 8px;font-size:0.75rem;" title="Logout">↩</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── Main Content ───────────────────────────────────── -->
+  <div class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <button class="btn btn-ghost btn-icon sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+        <span class="topbar-title">Overview</span>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:0.82rem;color:var(--c-text-3);" id="topbar-date"></span>
+        <div class="user-avatar js-user-avatar" title="Profile" style="cursor:default;">?</div>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body" id="page-main">
+      <!-- Welcome -->
+      <div style="margin-bottom:var(--sp-7);">
+        <h2 style="margin-bottom:4px;">Welcome back, <span class="js-user-name" style="color:var(--c-primary);">Citizen</span>! 👋</h2>
+        <p style="margin:0;font-size:0.9rem;">Here's your complaint activity summary. Ready to report another issue?</p>
+        <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-5);flex-wrap:wrap;">
+          <a href="report.html" class="btn btn-primary" id="quick-report-btn">+ Report New Issue</a>
+          <a href="complaints.html" class="btn btn-outline" id="view-all-btn">My Complaints →</a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:var(--sp-7);">
+        <div class="stat-card total">
+          <div class="stat-icon">📄</div>
+          <div class="stat-value counter-val" id="dash-total">0</div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value counter-val" id="dash-pending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card progress">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-value counter-val" id="dash-progress">0</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card resolved">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value counter-val" id="dash-resolved">0</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+      </div>
+
+      <!-- Two-column content -->
+      <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:var(--sp-5);align-items:start;" id="content-grid">
+
+        <!-- Recent Complaints -->
+        <div class="card">
+          <div class="card-header">
+            <span>Recent Complaints</span>
+            <a href="complaints.html" class="btn btn-ghost btn-sm" style="font-size:0.78rem;">View All →</a>
+          </div>
+          <div id="recent-complaints-container">
+            <div id="recent-empty" class="empty-state" style="padding:var(--sp-8);">
+              <div class="empty-icon">📋</div>
+              <h4>No complaints yet</h4>
+              <p style="font-size:0.85rem;">You haven't submitted any complaints. Start by reporting an issue in your area.</p>
+              <a href="report.html" class="btn btn-primary btn-sm" style="margin-top:var(--sp-4);">+ Report Your First Issue</a>
+            </div>
+            <div class="table-wrapper" id="recent-table-wrap" style="display:none;border:none;border-radius:0;">
+              <table id="recent-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
+          <!-- Tip card -->
+          <div class="card">
+            <div class="card-header">💡 Smart Suggestions</div>
+            <div class="card-body">
+              <p style="font-size:0.85rem;margin:0 0 var(--sp-4);">When you report an issue, our system instantly provides <strong>rule-based action steps</strong> — including authority contacts, escalation paths, and emergency numbers.</p>
+              <a href="report.html" class="btn btn-primary btn-sm" style="width:100%;text-align:center;">Try It Now →</a>
+            </div>
+          </div>
+          <!-- Account info -->
+          <div class="card">
+            <div class="card-header">👤 Account</div>
+            <div class="card-body" style="font-size:0.85rem;display:flex;flex-direction:column;gap:var(--sp-2);">
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--c-text-3);">Name</span><span class="fw-600 js-user-name">—</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--c-text-3);">Email</span><span class="fw-600 js-user-email" style="font-size:0.8rem;">—</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--c-text-3);">Role</span><span class="badge badge-info">Citizen</span></div>
+              <hr style="border:none;border-top:1px solid var(--c-border);margin:4px 0;">
+              <button class="btn btn-ghost btn-sm js-logout" style="width:100%;color:var(--c-danger);border-color:var(--c-danger-bg);">Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    DB.init();
+    if (!Auth.requireAuth()) return;
+
+    App.populateUserUI();
+    App.initSidebar();
+    App.fadeIn('#page-main');
+
+    // Date in topbar
+    document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+
+    // Stats
+    const user = Auth.getCurrentUser();
+    const stats = DB.Complaints.statsByUser(user.id);
+    animateCount('dash-total',    stats.total);
+    animateCount('dash-pending',  stats.pending);
+    animateCount('dash-progress', stats.progress);
+    animateCount('dash-resolved', stats.resolved);
+
+    // Recent complaints
+    const recent = DB.Complaints.byUser(user.id).slice(0, 5);
+    if (recent.length > 0) {
+      document.getElementById('recent-empty').style.display = 'none';
+      document.getElementById('recent-table-wrap').style.display = 'block';
+      const tbody = document.getElementById('recent-tbody');
+      tbody.innerHTML = recent.map(c => {
+        const cat = DB.Categories.findById(c.categoryId);
+        return `<tr>
+          <td><code style="font-size:0.7rem;color:var(--c-text-3);">${c.id.slice(0,8).toUpperCase()}</code></td>
+          <td style="font-size:0.8rem;">${cat ? cat.icon + ' ' + cat.name.split(' ')[0] : '—'}</td>
+          <td style="max-width:160px;"><div style="font-size:0.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${App.esc(c.title)}">${App.esc(c.title)}</div></td>
+          <td>${App.statusBadge(c.statusId)}</td>
+          <td style="font-size:0.78rem;white-space:nowrap;">${App.formatDate(c.createdAt)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Responsive grid for smaller screens
+    function handleResize() {
+      const grid = document.getElementById('content-grid');
+      if (grid) {
+        if (window.innerWidth < 900) grid.style.gridTemplateColumns = '1fr';
+        else grid.style.gridTemplateColumns = '1.6fr 1fr';
+      }
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+  });
+
+  function animateCount(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (target === 0) { el.textContent = '0'; return; }
+    let start = 0;
+    const step = Math.max(1, Math.ceil(target / 30));
+    const t = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = start;
+      if (start >= target) clearInterval(t);
+    }, 30);
+  }
+</script>
+</body>
+</html>

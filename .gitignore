@@ -1,0 +1,24 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.iml
+
+# Java / Maven build output
+backend/target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node / Environment
+node_modules/
+.env
+.env.local

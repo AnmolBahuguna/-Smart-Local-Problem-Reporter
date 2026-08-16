@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Complaints — CivicReport</title>
+  <meta name="description" content="View and track all your submitted civic complaints on CivicReport.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🏛️</div>
+      <div>
+        <div class="sidebar-logo-text">CivicReport</div>
+        <div class="sidebar-logo-sub">Citizen Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Overview</a>
+      <a href="report.html" class="nav-item"><span class="nav-icon">📝</span> Report Issue</a>
+      <a href="complaints.html" class="nav-item active"><span class="nav-icon">📄</span> My Complaints</a>
+      <div class="sidebar-section-label" style="margin-top:var(--sp-4);">Account</div>
+      <a href="#" class="nav-item"><span class="nav-icon">🔔</span> Notifications <span class="nav-badge">2</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <div class="user-avatar js-user-avatar">?</div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:0.83rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="js-user-name">Loading…</div>
+          <div style="font-size:0.7rem;color:var(--c-sidebar-text);" class="js-user-email">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm js-logout" style="color:hsla(0,0%,100%,.5);padding:4px 8px;font-size:0.75rem;" title="Logout">↩</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <button class="btn btn-ghost btn-icon sidebar-toggle" id="sidebar-toggle">☰</button>
+        <span class="topbar-title">My Complaints</span>
+      </div>
+      <div class="topbar-right">
+        <div class="user-avatar js-user-avatar" style="cursor:default;">?</div>
+      </div>
+    </header>
+
+    <main class="page-body" id="page-main">
+
+      <!-- Section Header -->
+      <div class="section-header" style="margin-bottom:var(--sp-5);">
+        <div style="display:flex;align-items:center;gap:var(--sp-3);">
+          <h2 style="margin:0;">My Complaints</h2>
+          <span class="badge badge-info" id="complaint-count">0</span>
+        </div>
+        <a href="report.html" class="btn btn-primary">+ Report New Issue</a>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-wrap" style="flex:1;min-width:200px;position:relative;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.85rem;pointer-events:none;">🔍</span>
+          <input type="text" class="form-control" id="filter-search" placeholder="Search by title, description, location…" style="padding-left:36px;">
+        </div>
+        <select class="form-control" id="filter-status" style="width:auto;min-width:140px;">
+          <option value="all">All Statuses</option>
+        </select>
+        <select class="form-control" id="filter-category" style="width:auto;min-width:180px;">
+          <option value="all">All Categories</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="clear-filters-btn">Clear Filters</button>
+      </div>
+
+      <!-- Complaints List -->
+      <div id="complaints-list" class="complaint-list"></div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/suggestions.js"></script>
+<script src="js/complaints.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    DB.init();
+    document.getElementById('clear-filters-btn')?.addEventListener('click', () => {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-status').value = 'all';
+      document.getElementById('filter-category').value = 'all';
+      document.getElementById('filter-search').dispatchEvent(new Event('input'));
+      document.getElementById('filter-status').dispatchEvent(new Event('change'));
+    });
+    // ComplaintsPage.init() is called by complaints.js on DOMContentLoaded
+  });
+</script>
+</body>
+</html>

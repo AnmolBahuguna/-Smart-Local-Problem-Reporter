@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Issue — CivicReport</title>
+  <meta name="description" content="Report a local civic issue and receive instant action suggestions tailored to your problem.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🏛️</div>
+      <div>
+        <div class="sidebar-logo-text">CivicReport</div>
+        <div class="sidebar-logo-sub">Citizen Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Overview</a>
+      <a href="report.html" class="nav-item active"><span class="nav-icon">📝</span> Report Issue</a>
+      <a href="complaints.html" class="nav-item"><span class="nav-icon">📄</span> My Complaints</a>
+      <div class="sidebar-section-label" style="margin-top:var(--sp-4);">Account</div>
+      <a href="#" class="nav-item"><span class="nav-icon">🔔</span> Notifications <span class="nav-badge">2</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <div class="user-avatar js-user-avatar">?</div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:0.83rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="js-user-name">Loading…</div>
+          <div style="font-size:0.7rem;color:var(--c-sidebar-text);" class="js-user-email">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm js-logout" style="color:hsla(0,0%,100%,.5);padding:4px 8px;font-size:0.75rem;" title="Logout">↩</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <button class="btn btn-ghost btn-icon sidebar-toggle" id="sidebar-toggle">☰</button>
+        <span class="topbar-title">Report Issue</span>
+      </div>
+      <div class="topbar-right">
+        <div class="user-avatar js-user-avatar" style="cursor:default;">?</div>
+      </div>
+    </header>
+
+    <main class="page-body" id="page-main" style="max-width:860px;">
+
+      <!-- ── Success State (hidden by default) ──────────────── -->
+      <div id="success-state" style="display:none;text-align:center;padding:var(--sp-12) var(--sp-6);">
+        <div style="font-size:4rem;margin-bottom:var(--sp-5);">✅</div>
+        <h2 style="color:var(--c-success);margin-bottom:var(--sp-3);">Complaint Submitted!</h2>
+        <p style="max-width:440px;margin:0 auto var(--sp-3);">Your complaint has been recorded and will be reviewed by the authorities. You can track the status anytime from My Complaints.</p>
+        <div style="font-family:monospace;font-size:0.9rem;background:var(--c-success-bg);color:var(--c-success);padding:10px 20px;border-radius:var(--r-full);display:inline-block;margin-bottom:var(--sp-7);font-weight:700;" id="success-id">ID: —</div>
+        <div style="display:flex;gap:var(--sp-3);justify-content:center;flex-wrap:wrap;">
+          <a href="complaints.html" class="btn btn-primary" id="view-complaints-btn">📄 View My Complaints</a>
+          <button class="btn btn-outline" id="report-another-btn">+ Report Another Issue</button>
+        </div>
+      </div>
+
+      <!-- ── Wizard ──────────────────────────────────────────── -->
+      <div id="wizard-wrap">
+        <!-- Step indicator -->
+        <div class="step-wizard" id="step-indicator">
+          <div class="step-item active" data-step="1">
+            <div class="step-bubble">1</div>
+            <div class="step-label">Category</div>
+          </div>
+          <div class="step-item" data-step="2">
+            <div class="step-bubble">2</div>
+            <div class="step-label">Describe</div>
+          </div>
+          <div class="step-item" data-step="3">
+            <div class="step-bubble">3</div>
+            <div class="step-label">Review</div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Category ─────────────────────────────────── -->
+        <div id="step-1">
+          <div class="card">
+            <div class="card-header">Step 1 — What type of issue are you reporting?</div>
+            <div class="card-body">
+              <div class="category-grid" id="cat-grid"></div>
+            </div>
+          </div>
+
+          <!-- Suggestion panel -->
+          <div id="suggestion-area" style="margin-top:var(--sp-5);display:none;"></div>
+
+          <div style="display:flex;justify-content:flex-end;margin-top:var(--sp-5);">
+            <button class="btn btn-primary btn-lg" id="step1-next" disabled>Next: Describe Issue →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Details ──────────────────────────────────── -->
+        <div id="step-2" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              Step 2 — Describe your issue
+              <span id="step2-cat-badge" style="font-size:0.8rem;color:var(--c-text-2);"></span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:var(--sp-4);">
+              <div class="form-group">
+                <label class="form-label" for="f-title">Complaint Title <span class="req">*</span></label>
+                <input type="text" class="form-control" id="f-title" placeholder="Brief title (e.g. Large pothole on MG Road)" maxlength="100">
+                <span class="form-error" id="f-title-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-desc">Description <span class="req">*</span></label>
+                <textarea class="form-control" id="f-desc" placeholder="Describe the issue in detail — when did it start, how severe is it, who is affected?" rows="4"></textarea>
+                <span class="form-error" id="f-desc-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-location">Location <span class="req">*</span></label>
+                <input type="text" class="form-control" id="f-location" placeholder="Street, area, landmark, city, pincode">
+                <span class="form-error" id="f-location-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Photo (Optional)</label>
+                <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-image').click();" ondragover="event.preventDefault();this.classList.add('dragover');" ondragleave="this.classList.remove('dragover');" ondrop="handleDrop(event);">
+                  <input type="file" id="f-image" accept="image/*" onchange="handleImageSelect(this)">
+                  <div id="upload-placeholder">
+                    <div style="font-size:2.5rem;margin-bottom:var(--sp-2);">📷</div>
+                    <div style="font-weight:600;color:var(--c-text-2);margin-bottom:4px;">Click to upload or drag & drop</div>
+                    <div style="font-size:0.8rem;color:var(--c-text-3);">PNG, JPG, GIF · Max 5MB</div>
+                  </div>
+                </div>
+                <div class="upload-preview" id="upload-preview" style="display:none;margin-top:var(--sp-3);border-radius:var(--r-md);overflow:hidden;max-height:200px;position:relative;">
+                  <img id="preview-img" src="" alt="Preview" style="width:100%;object-fit:cover;">
+                  <button onclick="clearImage()" style="position:absolute;top:8px;right:8px;background:hsla(0,0%,0%,.6);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.8rem;" title="Remove image">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:var(--sp-5);">
+            <button class="btn btn-ghost" id="step2-back">← Previous</button>
+            <button class="btn btn-primary btn-lg" id="step2-next">Review Complaint →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Review ───────────────────────────────────── -->
+        <div id="step-3" style="display:none;">
+          <div class="card" style="margin-bottom:var(--sp-5);">
+            <div class="card-header">Step 3 — Review your complaint before submitting</div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:var(--sp-4);">
+              <div id="review-image" style="display:none;border-radius:var(--r-md);overflow:hidden;max-height:200px;">
+                <img id="review-img" src="" alt="Complaint photo" style="width:100%;object-fit:cover;">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);">
+                <div>
+                  <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Category</div>
+                  <div id="review-cat" style="font-weight:600;font-size:0.95rem;"></div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Status</div>
+                  <span class="badge badge-pending">Pending (After Submit)</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Title</div>
+                <div id="review-title" style="font-weight:600;font-size:0.95rem;"></div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Description</div>
+                <div id="review-desc" style="font-size:0.875rem;color:var(--c-text-2);line-height:1.6;"></div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Location</div>
+                <div id="review-loc" style="font-size:0.875rem;color:var(--c-text-2);">📍 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggestion panel in review -->
+          <div class="card" style="margin-bottom:var(--sp-5);">
+            <div class="card-header">💡 Instant Action Suggestions</div>
+            <div class="card-body" id="review-suggestion"></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--sp-3);">
+            <button class="btn btn-ghost" id="step3-back">← Previous</button>
+            <button class="btn btn-primary btn-lg" id="submit-btn" style="min-width:200px;">
+              🚀 Submit Complaint
+            </button>
+          </div>
+        </div>
+      </div><!-- /wizard-wrap -->
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/suggestions.js"></script>
+<script>
+  let selectedCatId = null;
+  let imageBase64 = null;
+  let currentStep = 1;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    DB.init();
+    if (!Auth.requireAuth()) return;
+    App.populateUserUI();
+    App.initSidebar();
+    App.fadeIn('#page-main');
+    renderCategories();
+    bindNavigation();
+  });
+
+  function renderCategories() {
+    const grid = document.getElementById('cat-grid');
+    const cats = DB.Categories.all();
+    grid.innerHTML = cats.map(c => `
+      <div class="category-card" data-id="${c.id}" id="cat-${c.id}" onclick="selectCategory('${c.id}','${App.esc(c.name)}','${c.icon}')" title="${c.name}">
+        <div class="category-icon">${c.icon}</div>
+        <div class="category-name">${c.name}</div>
+      </div>
+    `).join('');
+  }
+
+  function selectCategory(id, name, icon) {
+    selectedCatId = id;
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('cat-' + id).classList.add('selected');
+    document.getElementById('step1-next').disabled = false;
+
+    // Show suggestion panel
+    const area = document.getElementById('suggestion-area');
+    area.style.display = 'block';
+    area.innerHTML = Suggestions.renderSuggestionPanel(id);
+
+    document.getElementById('step2-cat-badge').textContent = icon + ' ' + name;
+  }
+
+  function bindNavigation() {
+    document.getElementById('step1-next').addEventListener('click', () => {
+      if (!selectedCatId) { App.toast('warning', 'Select a category', 'Please choose an issue type first.'); return; }
+      goToStep(2);
+    });
+
+    document.getElementById('step2-back').addEventListener('click', () => goToStep(1));
+    document.getElementById('step2-next').addEventListener('click', () => {
+      if (!validateStep2()) return;
+      populateReview();
+      goToStep(3);
+    });
+
+    document.getElementById('step3-back').addEventListener('click', () => goToStep(2));
+
+    document.getElementById('submit-btn').addEventListener('click', submitComplaint);
+
+    document.getElementById('report-another-btn').addEventListener('click', () => {
+      selectedCatId = null;
+      imageBase64 = null;
+      document.getElementById('f-title').value = '';
+      document.getElementById('f-desc').value = '';
+      document.getElementById('f-location').value = '';
+      clearImage();
+      document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('suggestion-area').style.display = 'none';
+      document.getElementById('step1-next').disabled = true;
+      document.getElementById('success-state').style.display = 'none';
+      document.getElementById('wizard-wrap').style.display = 'block';
+      goToStep(1);
+    });
+  }
+
+  function goToStep(n) {
+    currentStep = n;
+    [1, 2, 3].forEach(i => {
+      document.getElementById('step-' + i).style.display = (i === n) ? 'block' : 'none';
+    });
+    // Update step indicator
+    document.querySelectorAll('.step-item').forEach(item => {
+      const s = parseInt(item.dataset.step);
+      item.classList.remove('active', 'done');
+      if (s < n)  item.classList.add('done');
+      if (s === n) item.classList.add('active');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep2() {
+    let valid = true;
+    document.querySelectorAll('.form-error').forEach(e => { e.textContent = ''; e.classList.remove('visible'); });
+    document.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
+
+    const title = document.getElementById('f-title').value.trim();
+    const desc  = document.getElementById('f-desc').value.trim();
+    const loc   = document.getElementById('f-location').value.trim();
+
+    if (!title) { showFieldError('f-title', 'f-title-err', 'Title is required'); valid = false; }
+    if (!desc || desc.length < 20) { showFieldError('f-desc', 'f-desc-err', 'Please provide at least 20 characters of description'); valid = false; }
+    if (!loc)   { showFieldError('f-location', 'f-location-err', 'Location is required'); valid = false; }
+    return valid;
+  }
+
+  function showFieldError(inputId, errId, msg) {
+    document.getElementById(inputId)?.classList.add('error');
+    const err = document.getElementById(errId);
+    if (err) { err.textContent = msg; err.classList.add('visible'); }
+  }
+
+  function populateReview() {
+    const cat = DB.Categories.findById(selectedCatId);
+    document.getElementById('review-cat').innerHTML   = cat ? `${cat.icon} ${cat.name}` : '—';
+    document.getElementById('review-title').textContent = document.getElementById('f-title').value.trim();
+    document.getElementById('review-desc').textContent  = document.getElementById('f-desc').value.trim();
+    document.getElementById('review-loc').innerHTML     = '📍 ' + App.esc(document.getElementById('f-location').value.trim());
+    document.getElementById('review-suggestion').innerHTML = Suggestions.renderSuggestionPanel(selectedCatId);
+
+    if (imageBase64) {
+      document.getElementById('review-image').style.display = 'block';
+      document.getElementById('review-img').src = imageBase64;
+    } else {
+      document.getElementById('review-image').style.display = 'none';
+    }
+  }
+
+  function submitComplaint() {
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting…';
+
+    const user = Auth.getCurrentUser();
+    setTimeout(() => {
+      const complaint = DB.Complaints.create({
+        userId:      user.id,
+        userName:    user.name,
+        categoryId:  selectedCatId,
+        title:       document.getElementById('f-title').value.trim(),
+        description: document.getElementById('f-desc').value.trim(),
+        location:    document.getElementById('f-location').value.trim(),
+        image:       imageBase64,
+      });
+      document.getElementById('wizard-wrap').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+      document.getElementById('success-id').textContent = 'Complaint ID: ' + complaint.id.toUpperCase();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      App.toast('success', 'Complaint submitted!', 'Your complaint has been recorded.');
+    }, 600);
+  }
+
+  // ── Image handling ──────────────────────────────────────────
+  function handleImageSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { App.toast('warning', 'File too large', 'Please upload an image under 5MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = e => setPreview(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) { App.toast('error', 'Invalid file', 'Please drop an image file.'); return; }
+    const reader = new FileReader();
+    reader.onload = e => setPreview(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function setPreview(src) {
+    imageBase64 = src;
+    document.getElementById('upload-placeholder').style.display = 'none';
+    document.getElementById('upload-preview').style.display = 'block';
+    document.getElementById('preview-img').src = src;
+  }
+
+  function clearImage() {
+    imageBase64 = null;
+    document.getElementById('f-image').value = '';
+    document.getElementById('upload-placeholder').style.display = 'block';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+  }
+</script>
+</body>
+</html>

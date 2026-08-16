@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — CivicReport</title>
+  <meta name="description" content="Sign in or create a free CivicReport account to report local civic issues and track resolutions.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="auth-page">
+
+  <!-- ── Left Panel ─────────────────────────────────────────── -->
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <div style="font-size:3rem;margin-bottom:var(--sp-4);">🏛️</div>
+      <h2>Your Voice Matters</h2>
+      <p style="margin:var(--sp-4) 0 var(--sp-6);">Report civic issues, track resolutions, and help build a better city — one complaint at a time.</p>
+      <div style="display:flex;flex-direction:column;gap:var(--sp-3);text-align:left;">
+        <div style="display:flex;align-items:center;gap:var(--sp-3);color:hsla(0,0%,100%,.85);font-size:0.9rem;">
+          <span style="color:#4ade80;font-size:1.1rem;flex-shrink:0;">✓</span>
+          <span>Easy 3-step complaint submission</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);color:hsla(0,0%,100%,.85);font-size:0.9rem;">
+          <span style="color:#4ade80;font-size:1.1rem;flex-shrink:0;">✓</span>
+          <span>Instant rule-based action suggestions</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);color:hsla(0,0%,100%,.85);font-size:0.9rem;">
+          <span style="color:#4ade80;font-size:1.1rem;flex-shrink:0;">✓</span>
+          <span>Real-time complaint status tracking</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);color:hsla(0,0%,100%,.85);font-size:0.9rem;">
+          <span style="color:#4ade80;font-size:1.1rem;flex-shrink:0;">✓</span>
+          <span>Direct authority contacts per issue</span>
+        </div>
+      </div>
+      <div class="auth-left-img" style="margin-top:var(--sp-8);">
+        <img src="assets/hero.jpg" alt="CivicReport platform" style="border-radius:var(--r-xl);width:100%;box-shadow:var(--sh-xl);">
+      </div>
+      <div style="margin-top:var(--sp-6);padding:var(--sp-4);background:hsla(0,0%,100%,.08);border-radius:var(--r-md);font-size:0.8rem;color:hsla(0,0%,100%,.65);">
+        <strong style="color:hsla(0,0%,100%,.9);">Demo Credentials:</strong><br>
+        User: ravi@example.com / User@123<br>
+        Admin: admin@city.gov / Admin@123
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Right Panel ────────────────────────────────────────── -->
+  <div class="auth-right">
+    <div class="auth-card">
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🏛️</div>
+        <div>
+          <div class="auth-logo-text">CivicReport</div>
+          <div style="font-size:0.72rem;color:var(--c-text-3);">Smart Problem Reporter</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn active" id="tab-login-btn" role="tab" aria-selected="true" aria-controls="login-tab" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tab-register-btn" role="tab" aria-selected="false" aria-controls="register-tab" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- LOGIN TAB -->
+      <div class="tab-content active" id="login-tab" role="tabpanel">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" class="form-control" id="login-email" placeholder="your@email.com" autocomplete="email">
+          <span class="form-error" id="login-email-err"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <div style="position:relative;">
+            <input type="password" class="form-control" id="login-password" placeholder="Your password" autocomplete="current-password" style="padding-right:44px;">
+            <button type="button" onclick="togglePwd('login-password',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;color:var(--c-text-3);">👁️</button>
+          </div>
+          <span class="form-error" id="login-password-err"></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--c-text-2);">
+            <input type="checkbox" id="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-primary w-full" id="login-submit" style="width:100%;margin-top:var(--sp-2);">Sign In</button>
+        <div style="padding:var(--sp-3);background:var(--c-primary-bg);border-radius:var(--r-md);font-size:0.78rem;color:var(--c-text-2);border:1px solid var(--c-border);text-align:center;">
+          <strong>Demo:</strong> ravi@example.com / User@123 &nbsp;|&nbsp; admin@city.gov / Admin@123
+        </div>
+      </div>
+
+      <!-- REGISTER TAB -->
+      <div class="tab-content" id="register-tab" role="tabpanel">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Full Name <span class="req">*</span></label>
+            <input type="text" class="form-control" id="reg-name" placeholder="Ravi Kumar" autocomplete="name">
+            <span class="form-error" id="reg-name-err"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-phone">Phone Number</label>
+            <input type="tel" class="form-control" id="reg-phone" placeholder="9876543210" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Email Address <span class="req">*</span></label>
+          <input type="email" class="form-control" id="reg-email" placeholder="your@email.com" autocomplete="email">
+          <span class="form-error" id="reg-email-err"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Password <span class="req">*</span></label>
+            <div style="position:relative;">
+              <input type="password" class="form-control" id="reg-password" placeholder="Min. 6 characters" autocomplete="new-password" style="padding-right:44px;">
+              <button type="button" onclick="togglePwd('reg-password',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;color:var(--c-text-3);">👁️</button>
+            </div>
+            <span class="form-error" id="reg-password-err"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-confirm">Confirm Password <span class="req">*</span></label>
+            <input type="password" class="form-control" id="reg-confirm" placeholder="Repeat password" autocomplete="new-password">
+            <span class="form-error" id="reg-confirm-err"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-role">Account Type <span class="req">*</span></label>
+          <select class="form-control" id="reg-role">
+            <option value="user">👤 Citizen (Report & Track Issues)</option>
+            <option value="admin">🏛️ Admin (Manage Complaints)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary w-full" id="register-submit" style="width:100%;">Create Account</button>
+        <p style="font-size:0.75rem;text-align:center;color:var(--c-text-3);">By registering, you agree to use this platform responsibly for legitimate civic complaints.</p>
+      </div>
+
+      <!-- Back to home -->
+      <div style="text-align:center;margin-top:var(--sp-5);">
+        <a href="index.html" style="font-size:0.82rem;color:var(--c-text-3);">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    DB.init();
+    Auth.redirectIfAuth();
+
+    // Check URL hash for direct register link
+    if (window.location.hash === '#register') switchTab('register');
+
+    // ── Login Submit ─────────────────────────────────────────
+    document.getElementById('login-submit').addEventListener('click', () => {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      let valid = true;
+
+      clearErrors();
+      if (!email) { showError('login-email-err', 'Email is required'); valid = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('login-email-err', 'Enter a valid email'); valid = false; }
+      if (!password) { showError('login-password-err', 'Password is required'); valid = false; }
+      if (!valid) return;
+
+      const btn = document.getElementById('login-submit');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      setTimeout(() => {
+        const result = Auth.login(email, password);
+        if (result.ok) {
+          App.toast('success', 'Welcome back!', `Hello, ${result.user.name}!`);
+          setTimeout(() => {
+            window.location.href = result.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+          }, 800);
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+          App.toast('error', 'Login failed', result.error);
+          document.getElementById('login-email').classList.add('error');
+          document.getElementById('login-password').classList.add('error');
+        }
+      }, 300);
+    });
+
+    // Enter key login
+    document.getElementById('login-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('login-submit').click();
+    });
+
+    // ── Register Submit ──────────────────────────────────────
+    document.getElementById('register-submit').addEventListener('click', () => {
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const phone    = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm  = document.getElementById('reg-confirm').value;
+      const role     = document.getElementById('reg-role').value;
+      let valid = true;
+
+      clearErrors();
+      if (!name)    { showError('reg-name-err', 'Full name is required'); valid = false; }
+      if (!email)   { showError('reg-email-err', 'Email is required'); valid = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('reg-email-err', 'Enter a valid email'); valid = false; }
+      if (!password) { showError('reg-password-err', 'Password is required'); valid = false; }
+      else if (password.length < 6) { showError('reg-password-err', 'Password must be at least 6 characters'); valid = false; }
+      if (password !== confirm) { showError('reg-confirm-err', 'Passwords do not match'); valid = false; }
+      if (!valid) return;
+
+      const btn = document.getElementById('register-submit');
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+
+      setTimeout(() => {
+        const result = Auth.register(name, email, password, phone, role);
+        if (result.ok) {
+          App.toast('success', 'Account created!', `Welcome to CivicReport, ${name}!`);
+          setTimeout(() => {
+            window.location.href = role === 'admin' ? 'admin.html' : 'dashboard.html';
+          }, 800);
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+          App.toast('error', 'Registration failed', result.error);
+          document.getElementById('reg-email').classList.add('error');
+        }
+      }, 300);
+    });
+  });
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab + '-btn').classList.add('active');
+    document.getElementById('tab-' + tab + '-btn').setAttribute('aria-selected','true');
+    document.getElementById(tab + '-tab').classList.add('active');
+    clearErrors();
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.classList.add('visible'); }
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.form-error').forEach(e => { e.textContent = ''; e.classList.remove('visible'); });
+    document.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
+  }
+
+  function togglePwd(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+  }
+</script>
+</body>
+</html>

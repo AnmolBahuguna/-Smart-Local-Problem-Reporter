@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — CivicReport</title>
+  <meta name="description" content="CivicReport Admin Dashboard — manage and resolve citizen complaints.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-badge { background:var(--c-danger); color:#fff; font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:var(--r-full); letter-spacing:.03em; text-transform:uppercase; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Admin Sidebar ───────────────────────────────────── -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🏛️</div>
+      <div>
+        <div class="sidebar-logo-text">CivicReport</div>
+        <div class="sidebar-logo-sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Management</div>
+      <a href="admin.html" class="nav-item active"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="#complaints-section" class="nav-item" onclick="document.getElementById('complaints-section').scrollIntoView({behavior:'smooth'});return false;"><span class="nav-icon">📄</span> All Complaints</a>
+      <a href="#" class="nav-item"><span class="nav-icon">👥</span> Users</a>
+      <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+      <div class="sidebar-section-label" style="margin-top:var(--sp-4);">Portal</div>
+      <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span> View Public Site</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <div class="user-avatar js-user-avatar">CA</div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:0.83rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="js-user-name">Admin</div>
+          <div style="font-size:0.7rem;color:var(--c-sidebar-text);" class="js-user-email">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm js-logout" style="color:hsla(0,0%,100%,.5);padding:4px 8px;font-size:0.75rem;" title="Logout">↩</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);">
+        <button class="btn btn-ghost btn-icon sidebar-toggle" id="sidebar-toggle">☰</button>
+        <span class="topbar-title">Admin Dashboard</span>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:0.82rem;color:var(--c-text-3);" id="admin-date"></span>
+        <div class="user-avatar js-user-avatar" style="cursor:default;">CA</div>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body" id="page-main">
+
+      <!-- Welcome -->
+      <div style="margin-bottom:var(--sp-7);">
+        <h2 style="margin-bottom:4px;">Admin Dashboard 🏛️</h2>
+        <p style="margin:0;font-size:0.9rem;">Manage citizen complaints, update statuses, and monitor resolution metrics.</p>
+      </div>
+
+      <!-- ── Stats Grid ─────────────────────────────────────── -->
+      <div class="stats-grid" style="margin-bottom:var(--sp-6);grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+        <div class="stat-card total">
+          <div class="stat-icon">📄</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="stat-pending">—</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card progress">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-value" id="stat-progress">—</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card resolved">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="stat-resolved">—</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+        <div class="stat-card total">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="stat-users">—</div>
+          <div class="stat-label">Citizens</div>
+        </div>
+        <div class="stat-card resolved">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value" id="stat-rate">—</div>
+          <div class="stat-label">Resolution Rate</div>
+        </div>
+      </div>
+
+      <!-- ── Charts ─────────────────────────────────────────── -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h4>Complaints by Category</h4>
+          <canvas id="chart-category"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Status Distribution</h4>
+          <canvas id="chart-status"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:var(--sp-6);">
+        <h4>Complaint Trend — Last 7 Days</h4>
+        <canvas id="chart-trend"></canvas>
+      </div>
+
+      <!-- ── Complaints Table ──────────────────────────────── -->
+      <div id="complaints-section">
+        <div class="section-header" style="margin-bottom:var(--sp-4);">
+          <div style="display:flex;align-items:center;gap:var(--sp-3);">
+            <h3 style="margin:0;">All Complaints</h3>
+            <span class="badge badge-info" id="admin-count">0</span>
+          </div>
+          <div style="font-size:0.8rem;color:var(--c-text-3);">Changes save automatically on status select</div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" style="margin-bottom:var(--sp-4);">
+          <div style="flex:1;min-width:200px;position:relative;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.85rem;pointer-events:none;">🔍</span>
+            <input type="text" class="form-control" id="admin-search" placeholder="Search title, user, location…" style="padding-left:36px;">
+          </div>
+          <select class="form-control" id="admin-filter-status" style="width:auto;min-width:140px;">
+            <option value="all">All Statuses</option>
+          </select>
+          <select class="form-control" id="admin-filter-category" style="width:auto;min-width:180px;">
+            <option value="all">All Categories</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="admin-clear-btn">Clear</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title / Citizen</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--c-text-3);">Loading complaints…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/suggestions.js"></script>
+<script src="js/admin.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    DB.init();
+    // Set current date
+    document.getElementById('admin-date').textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+    // Clear filter button
+    document.getElementById('admin-clear-btn')?.addEventListener('click', () => {
+      document.getElementById('admin-search').value = '';
+      document.getElementById('admin-filter-status').value = 'all';
+      document.getElementById('admin-filter-category').value = 'all';
+      ['admin-search','admin-filter-status','admin-filter-category'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.dispatchEvent(new Event(el.tagName === 'INPUT' ? 'input' : 'change'));
+      });
+    });
+    // AdminPage.init() is called by admin.js
+  });
+</script>
+</body>
+</html>
