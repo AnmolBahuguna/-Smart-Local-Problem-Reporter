@@ -38,10 +38,9 @@
       <div class="auth-left-img" style="margin-top:var(--sp-8);">
         <img src="assets/hero.jpg" alt="CivicReport platform" style="border-radius:var(--r-xl);width:100%;box-shadow:var(--sh-xl);">
       </div>
-      <div style="margin-top:var(--sp-6);padding:var(--sp-4);background:hsla(0,0%,100%,.08);border-radius:var(--r-md);font-size:0.8rem;color:hsla(0,0%,100%,.65);">
-        <strong style="color:hsla(0,0%,100%,.9);">Demo Credentials:</strong><br>
-        User: ravi@example.com / User@123<br>
-        Admin: admin@city.gov / Admin@123
+      <div style="margin-top:var(--sp-6);padding:var(--sp-4);background:hsla(0,0%,100%,.08);border-radius:var(--r-md);font-size:0.8rem;color:hsla(0,0%,100%,.65);line-height:1.6;">
+        <strong style="color:hsla(0,0%,100%,.9);">🔒 Your data is protected</strong><br>
+        Complaints are visible only to you and the assigned department. Sessions end automatically when you close the browser.
       </div>
     </div>
   </div>
@@ -85,9 +84,7 @@
           </label>
         </div>
         <button class="btn btn-primary w-full" id="login-submit" style="width:100%;margin-top:var(--sp-2);">Sign In</button>
-        <div style="padding:var(--sp-3);background:var(--c-primary-bg);border-radius:var(--r-md);font-size:0.78rem;color:var(--c-text-2);border:1px solid var(--c-border);text-align:center;">
-          <strong>Demo:</strong> ravi@example.com / User@123 &nbsp;|&nbsp; admin@city.gov / Admin@123
-        </div>
+        <p style="font-size:0.78rem;color:var(--c-text-3);text-align:center;margin:0;">New to CivicReport? <a href="#register" onclick="switchTab('register')">Create a free account</a> to start reporting.</p>
       </div>
 
       <!-- REGISTER TAB -->
@@ -95,7 +92,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="reg-name">Full Name <span class="req">*</span></label>
-            <input type="text" class="form-control" id="reg-name" placeholder="Ravi Kumar" autocomplete="name">
+            <input type="text" class="form-control" id="reg-name" placeholder="Your full name" autocomplete="name">
             <span class="form-error" id="reg-name-err"></span>
           </div>
           <div class="form-group">
@@ -126,8 +123,8 @@
         <div class="form-group">
           <label class="form-label" for="reg-role">Account Type <span class="req">*</span></label>
           <select class="form-control" id="reg-role">
-            <option value="user">👤 Citizen (Report & Track Issues)</option>
-            <option value="admin">🏛️ Admin (Manage Complaints)</option>
+            <option value="user">👤 Citizen — Report &amp; Track Issues</option>
+            <option value="admin">🏛️ Department Admin — Manage Complaints</option>
           </select>
         </div>
         <button class="btn btn-primary w-full" id="register-submit" style="width:100%;">Create Account</button>

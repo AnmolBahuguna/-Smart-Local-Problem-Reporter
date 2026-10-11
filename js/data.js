@@ -44,139 +44,29 @@ const DB = (() => {
     { id: 'st_4', name: 'Rejected',    badge: 'badge-rejected' },
   ];
 
-  const ADMIN_USER = {
-    id: 'usr_admin',
-    name: 'City Admin',
-    email: 'admin@city.gov',
-    password: 'Admin@123',   // stored plain for demo; in real app: hashed
-    phone: '1800-000-1234',
-    role: 'admin',
-    createdAt: '2025-01-01T00:00:00.000Z',
-    avatar: 'CA',
-  };
-
-  const SAMPLE_COMPLAINTS = [
-    {
-      id: 'cmp_001',
-      userId: 'usr_demo',
-      userName: 'Ravi Kumar',
-      categoryId: 'cat_1',
-      statusId: 'st_3',
-      title: 'Large pothole on MG Road near bus stop',
-      description: 'There is a very large and dangerous pothole near the main bus stop on MG Road. Two-wheelers have already met with accidents. Immediate repair needed.',
-      location: 'MG Road, Near Bus Stop No. 12, Bangalore - 560001',
-      image: null,
-      createdAt: '2026-07-10T08:30:00.000Z',
-      updatedAt: '2026-07-18T14:00:00.000Z',
-      adminNote: 'Repair team dispatched. Work completed on 18th July.',
-    },
-    {
-      id: 'cmp_002',
-      userId: 'usr_demo',
-      userName: 'Ravi Kumar',
-      categoryId: 'cat_2',
-      statusId: 'st_2',
-      title: 'Street light not working for 2 weeks',
-      description: 'The street light at the end of 5th Cross, JP Nagar has not been working for over two weeks. The area is very dark at night and unsafe for residents.',
-      location: '5th Cross, JP Nagar, Bangalore - 560078',
-      image: null,
-      createdAt: '2026-07-28T19:00:00.000Z',
-      updatedAt: '2026-08-01T10:00:00.000Z',
-      adminNote: 'Electrician assigned. Parts ordered.',
-    },
-    {
-      id: 'cmp_003',
-      userId: 'usr_demo',
-      userName: 'Ravi Kumar',
-      categoryId: 'cat_4',
-      statusId: 'st_1',
-      title: 'Garbage not collected for 5 days',
-      description: 'Garbage collection vehicle has not visited our street for 5 days. Garbage is piling up and causing health hazards. Stray animals are spreading garbage.',
-      location: '3rd Block, Jayanagar, Bangalore - 560011',
-      image: null,
-      createdAt: '2026-08-14T07:00:00.000Z',
-      updatedAt: '2026-08-14T07:00:00.000Z',
-      adminNote: '',
-    },
-    {
-      id: 'cmp_004',
-      userId: 'usr_demo2',
-      userName: 'Priya Singh',
-      categoryId: 'cat_3',
-      statusId: 'st_2',
-      title: 'No water supply for 3 days',
-      description: 'Our area has been experiencing no water supply for the past 3 days. We are relying on water tankers which are also irregular.',
-      location: 'Koramangala 4th Block, Bangalore - 560034',
-      image: null,
-      createdAt: '2026-08-12T09:00:00.000Z',
-      updatedAt: '2026-08-13T11:00:00.000Z',
-      adminNote: 'Pipeline repair in progress.',
-    },
-    {
-      id: 'cmp_005',
-      userId: 'usr_demo2',
-      userName: 'Priya Singh',
-      categoryId: 'cat_8',
-      statusId: 'st_1',
-      title: 'Illegal construction blocking footpath',
-      description: 'A builder is constructing a building and has completely blocked the footpath. Pedestrians are forced to walk on the road, which is dangerous.',
-      location: 'Indiranagar 100 Feet Road, Bangalore - 560038',
-      image: null,
-      createdAt: '2026-08-15T14:00:00.000Z',
-      updatedAt: '2026-08-15T14:00:00.000Z',
-      adminNote: '',
-    },
-  ];
-
   // ── Init ──────────────────────────────────────────────────
   function init() {
     // Seed categories & statuses (always)
     save('categories', CATEGORIES);
     save('statuses', STATUSES);
 
-    // Seed users if not present
-    if (!load('users')) {
-      const demoUser1 = {
-        id: 'usr_demo',
-        name: 'Ravi Kumar',
-        email: 'ravi@example.com',
-        password: 'User@123',
-        phone: '9876543210',
-        role: 'user',
-        createdAt: '2026-01-15T00:00:00.000Z',
-        avatar: 'RK',
-      };
-      const demoUser2 = {
-        id: 'usr_demo2',
-        name: 'Priya Singh',
-        email: 'priya@example.com',
-        password: 'User@123',
-        phone: '9876500000',
-        role: 'user',
-        createdAt: '2026-03-10T00:00:00.000Z',
-        avatar: 'PS',
-      };
-      save('users', [ADMIN_USER, demoUser1, demoUser2]);
-    } else {
-      // Ensure admin always exists
-      const users = load('users');
-      if (!users.find(u => u.id === 'usr_admin')) {
-        users.unshift(ADMIN_USER);
-        save('users', users);
+    // One-time purge of legacy demo data (users, complaints, feedback)
+    if (!load('purged_v2')) {
+      ['complaints', 'feedback'].forEach(k => localStorage.removeItem(PREFIX + k));
+      const existing = load('users');
+      if (existing) {
+        save('users', existing.filter(u =>
+          !['usr_admin', 'usr_demo', 'usr_demo2'].includes(u.id) &&
+          !['admin@city.gov', 'ravi@example.com', 'priya@example.com'].includes((u.email || '').toLowerCase())
+        ));
       }
+      save('purged_v2', true);
     }
 
-    // Seed complaints if not present
-    if (!load('complaints')) {
-      save('complaints', SAMPLE_COMPLAINTS);
-    }
-
-    // Seed feedback if not present
-    if (!load('feedback')) {
-      save('feedback', [
-        { id: 'fb_001', complaintId: 'cmp_001', userId: 'usr_demo', text: 'Great service! Issue was resolved quickly.', rating: 5, createdAt: '2026-07-20T10:00:00.000Z' },
-      ]);
-    }
+    // Empty stores — all records come from real registrations & reports
+    if (!load('users'))      save('users', []);
+    if (!load('complaints')) save('complaints', []);
+    if (!load('feedback'))   save('feedback', []);
   }
 
   // ── Users ─────────────────────────────────────────────────
@@ -221,6 +111,8 @@ const DB = (() => {
         description: data.description,
         location: data.location,
         image: data.image || null,
+        lat: (data.lat != null ? data.lat : null),
+        lng: (data.lng != null ? data.lng : null),
         createdAt: now(),
         updatedAt: now(),
         adminNote: '',

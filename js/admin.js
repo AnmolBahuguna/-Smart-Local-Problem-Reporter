@@ -252,7 +252,14 @@ const AdminPage = (() => {
           <div><strong>Title:</strong><br>${App.esc(c.title)}</div>
           <div><strong>Submitted by:</strong> ${App.esc(c.userName)}</div>
           <div><strong>Category:</strong> ${cat ? cat.icon + ' ' + cat.name : '—'}</div>
-          <div><strong>Location:</strong> 📍 ${App.esc(c.location)}</div>
+          <div><strong>Location:</strong> 📍 ${App.esc(c.location)}${(c.lat != null && c.lng != null) ? ` <span style="font-size:0.72rem;color:var(--c-text-3);font-family:monospace;">(${c.lat.toFixed(5)}, ${c.lng.toFixed(5)})</span>` : ''}</div>
+          <div class="map-frame-wrap">
+            <iframe class="map-frame" style="height:190px;" title="Complaint location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen src="${App.mapsEmbedUrl(c)}"></iframe>
+            <div class="map-meta">
+              <span style="font-size:0.75rem;color:var(--c-text-3);">Issue location</span>
+              <a href="${App.mapsSearchUrl(c)}" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;">🗺️ Open in Google Maps →</a>
+            </div>
+          </div>
           <div><strong>Description:</strong><br><p style="margin:4px 0 0;">${App.esc(c.description)}</p></div>
           <div><strong>Submitted:</strong> ${App.formatDateTime(c.createdAt)}</div>
           <div><strong>Last Updated:</strong> ${App.formatDateTime(c.updatedAt)}</div>

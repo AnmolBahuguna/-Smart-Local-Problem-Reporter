@@ -174,9 +174,16 @@ const ComplaintsPage = (() => {
           ${imageSection}
           <p class="complaint-desc">${App.esc(c.description)}</p>
           <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.8125rem;color:var(--c-text-2);margin-bottom:16px;">
-            <span>📍 ${App.esc(c.location)}</span>
+            <span>📍 ${App.esc(c.location)}${(c.lat != null && c.lng != null) ? ' <span style="font-size:0.72rem;color:var(--c-text-3);font-family:monospace;">(GPS pinned)</span>' : ''}</span>
             <span>📅 Submitted: ${App.formatDate(c.createdAt)}</span>
             <span>🔄 Updated: ${App.formatDate(c.updatedAt)}</span>
+          </div>
+          <div class="map-frame-wrap" style="margin-bottom:16px;">
+            <iframe class="map-frame" style="height:190px;" title="Complaint location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen src="${App.mapsEmbedUrl(c)}"></iframe>
+            <div class="map-meta">
+              <span style="font-size:0.75rem;color:var(--c-text-3);">Issue location</span>
+              <a href="${App.mapsSearchUrl(c)}" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;">🗺️ Open in Google Maps →</a>
+            </div>
           </div>
           <details style="margin-bottom:12px;">
             <summary style="font-size:0.85rem;font-weight:600;color:var(--c-primary);cursor:pointer;user-select:none;padding:8px 0;">

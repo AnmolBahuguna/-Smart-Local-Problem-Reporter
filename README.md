@@ -7,17 +7,10 @@ A full-stack civic issue reporting platform where citizens submit local complain
 ## 🚀 Quick Start (Browser — No Installation Required)
 
 1. Open `index.html` in any modern browser
-2. Register a new account — or use the demo credentials below
+2. Register a new account (Citizen or Department Admin)
 3. Start reporting issues!
 
-### Demo Credentials
-| Role  | Email                | Password   |
-|-------|----------------------|------------|
-| User  | ravi@example.com     | User@123   |
-| User  | priya@example.com    | User@123   |
-| Admin | admin@city.gov       | Admin@123  |
-
-> All data is stored in your browser's `localStorage`. No server needed.
+> No pre-loaded demo accounts or sample complaints — the portal starts clean and every record comes from real registrations and filings. All data is stored in your browser's `localStorage`. No server needed.
 
 ---
 
@@ -79,7 +72,9 @@ smart-problem-reporter/
 - **Suggestion Preview** — Admins see the same suggestions as citizens
 
 ### Design
+- Professional civic-portal UI (government-style utility bar, helpline block, multi-column footer)
 - Premium HSL design system with civic blue palette
+- Live portal statistics computed from real submitted data
 - Fully responsive (mobile-first, collapsible sidebar)
 - Micro-animations and smooth transitions
 - Toast notifications for all user actions

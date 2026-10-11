@@ -124,6 +124,17 @@ const App = (() => {
     return `<span style="font-size:0.78rem;font-weight:600;color:var(--c-text-2);">${c.icon} ${c.name}</span>`;
   }
 
+  // ── Google Maps helpers ───────────────────────────────────
+  function mapsQuery(c) {
+    return (c.lat != null && c.lng != null) ? `${c.lat},${c.lng}` : encodeURIComponent(c.location || '');
+  }
+  function mapsSearchUrl(c) {
+    return `https://www.google.com/maps/search/?api=1&query=${mapsQuery(c)}`;
+  }
+  function mapsEmbedUrl(c, zoom = 16) {
+    return `https://maps.google.com/maps?q=${mapsQuery(c)}&z=${zoom}&output=embed`;
+  }
+
   // ── Escape HTML ───────────────────────────────────────────
   function esc(str) {
     if (!str) return '';
@@ -172,5 +183,5 @@ const App = (() => {
     }, 50);
   }
 
-  return { toast, openModal, closeModal, modal, initSidebar, formatDate, formatDateTime, timeAgo, statusBadge, categoryPill, esc, populateUserUI, fadeIn, confirm };
+  return { toast, openModal, closeModal, modal, initSidebar, formatDate, formatDateTime, timeAgo, statusBadge, categoryPill, esc, populateUserUI, fadeIn, confirm, mapsQuery, mapsSearchUrl, mapsEmbedUrl };
 })();

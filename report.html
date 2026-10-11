@@ -24,8 +24,6 @@
       <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Overview</a>
       <a href="report.html" class="nav-item active"><span class="nav-icon">📝</span> Report Issue</a>
       <a href="complaints.html" class="nav-item"><span class="nav-icon">📄</span> My Complaints</a>
-      <div class="sidebar-section-label" style="margin-top:var(--sp-4);">Account</div>
-      <a href="#" class="nav-item"><span class="nav-icon">🔔</span> Notifications <span class="nav-badge">2</span></a>
     </nav>
     <div class="sidebar-footer">
       <div style="display:flex;align-items:center;gap:var(--sp-3);">
@@ -120,8 +118,20 @@
               </div>
               <div class="form-group">
                 <label class="form-label" for="f-location">Location <span class="req">*</span></label>
-                <input type="text" class="form-control" id="f-location" placeholder="Street, area, landmark, city, pincode">
+                <div style="display:flex;gap:var(--sp-2);align-items:stretch;flex-wrap:wrap;">
+                  <input type="text" class="form-control" id="f-location" placeholder="Street, area, landmark, city, pincode" style="flex:1;min-width:200px;">
+                  <button type="button" class="btn btn-outline btn-sm" id="gps-btn" title="Detect my location using GPS" style="flex-shrink:0;">📡 Use my location</button>
+                </div>
                 <span class="form-error" id="f-location-err"></span>
+                <!-- Google Map preview of the reported location -->
+                <div class="map-frame-wrap" id="map-wrap" style="margin-top:var(--sp-3);display:none;">
+                  <iframe id="map-frame" class="map-frame" title="Complaint location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                  <div class="map-meta">
+                    <span id="map-coords" style="font-size:0.72rem;color:var(--c-text-3);font-family:monospace;"></span>
+                    <a id="map-open-link" href="#" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;">Open in Google Maps →</a>
+                  </div>
+                </div>
+                <div style="font-size:0.75rem;color:var(--c-text-3);margin-top:6px;">Type an address or use GPS — the map preview updates automatically.</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Photo (Optional)</label>
@@ -175,6 +185,9 @@
               <div>
                 <div style="font-size:0.75rem;color:var(--c-text-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;">Location</div>
                 <div id="review-loc" style="font-size:0.875rem;color:var(--c-text-2);">📍 </div>
+                <div class="map-frame-wrap" id="review-map-wrap" style="margin-top:var(--sp-3);display:none;">
+                  <iframe id="review-map-frame" class="map-frame" title="Reviewed complaint location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                </div>
               </div>
             </div>
           </div>
@@ -208,6 +221,8 @@
   let selectedCatId = null;
   let imageBase64 = null;
   let currentStep = 1;
+  let mapCoords = null;        // { lat, lng } when captured via GPS
+  let mapDebounce = null;
 
   document.addEventListener('DOMContentLoaded', () => {
     DB.init();
@@ -217,7 +232,75 @@
     App.fadeIn('#page-main');
     renderCategories();
     bindNavigation();
+    bindLocationMap();
   });
+
+  // ── Google Map location preview & GPS ──────────────────────
+  function bindLocationMap() {
+    const locInput = document.getElementById('f-location');
+    locInput.addEventListener('input', () => {
+      clearTimeout(mapDebounce);
+      mapDebounce = setTimeout(() => refreshMapPreview(locInput.value.trim()), 600);
+    });
+    document.getElementById('gps-btn').addEventListener('click', useMyLocation);
+  }
+
+  function mapQueryUrl() {
+    // Prefer exact GPS coordinates, fall back to the typed address text
+    const q = (mapCoords && Number.isFinite(mapCoords.lat))
+      ? `${mapCoords.lat},${mapCoords.lng}`
+      : encodeURIComponent(document.getElementById('f-location').value.trim());
+    return { q, embed: `https://maps.google.com/maps?q=${q}&z=16&output=embed` };
+  }
+
+  function refreshMapPreview(address) {
+    const wrap = document.getElementById('map-wrap');
+    if (!address && !mapCoords) { wrap.style.display = 'none'; return; }
+    const { q, embed } = mapQueryUrl();
+    document.getElementById('map-frame').src = embed;
+    document.getElementById('map-coords').textContent = mapCoords
+      ? `📌 GPS pinned: ${mapCoords.lat.toFixed(6)}, ${mapCoords.lng.toFixed(6)}` : '';
+    document.getElementById('map-open-link').href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    wrap.style.display = 'block';
+  }
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      App.toast('error', 'GPS not supported', 'Your browser does not support location detection. Please type the address.');
+      return;
+    }
+    const btn = document.getElementById('gps-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Locating…';
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      mapCoords = { lat, lng };
+      const input = document.getElementById('f-location');
+
+      // Reverse-geocode coordinates into a readable address (free OSM service)
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+        .then(r => r.json())
+        .then(d => { if (d && d.display_name) input.value = d.display_name; })
+        .catch(() => {})
+        .finally(() => {
+          if (!input.value) input.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          input.classList.remove('error');
+          const err = document.getElementById('f-location-err');
+          err.textContent = ''; err.classList.remove('visible');
+          refreshMapPreview(input.value.trim());
+          btn.disabled = false;
+          btn.textContent = '📡 Use my location';
+          App.toast('success', 'Location captured', 'Your current GPS position has been pinned on the map.');
+        });
+    }, err => {
+      btn.disabled = false;
+      btn.textContent = '📡 Use my location';
+      App.toast('warning', 'Location unavailable', err.code === 1
+        ? 'Please allow location access in your browser, or type the address manually.'
+        : 'Could not detect your position. Please type the address manually.');
+    }, { enableHighAccuracy: true, timeout: 12000 });
+  }
 
   function renderCategories() {
     const grid = document.getElementById('cat-grid');
@@ -264,9 +347,12 @@
     document.getElementById('report-another-btn').addEventListener('click', () => {
       selectedCatId = null;
       imageBase64 = null;
+      mapCoords = null;
       document.getElementById('f-title').value = '';
       document.getElementById('f-desc').value = '';
       document.getElementById('f-location').value = '';
+      document.getElementById('map-wrap').style.display = 'none';
+      document.getElementById('map-frame').removeAttribute('src');
       clearImage();
       document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
       document.getElementById('suggestion-area').style.display = 'none';
@@ -321,6 +407,13 @@
     document.getElementById('review-loc').innerHTML     = '📍 ' + App.esc(document.getElementById('f-location').value.trim());
     document.getElementById('review-suggestion').innerHTML = Suggestions.renderSuggestionPanel(selectedCatId);
 
+    // Show Google Map preview of the reported location
+    const { q, embed } = mapQueryUrl();
+    const reviewWrap = document.getElementById('review-map-wrap');
+    document.getElementById('review-map-frame').src = embed;
+    reviewWrap.style.display = 'block';
+    reviewWrap.dataset.query = q;
+
     if (imageBase64) {
       document.getElementById('review-image').style.display = 'block';
       document.getElementById('review-img').src = imageBase64;
@@ -344,6 +437,8 @@
         description: document.getElementById('f-desc').value.trim(),
         location:    document.getElementById('f-location').value.trim(),
         image:       imageBase64,
+        lat:         mapCoords ? mapCoords.lat : null,
+        lng:         mapCoords ? mapCoords.lng : null,
       });
       document.getElementById('wizard-wrap').style.display = 'none';
       document.getElementById('success-state').style.display = 'block';
